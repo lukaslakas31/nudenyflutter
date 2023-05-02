@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 class Nudeny {
-  static Future<Map<String, dynamic>> moderateImage(String imagePath) async {
+  static Future<Map<String, dynamic>> checkNudeny(String imagePath) async {
     final imageBytes = File(imagePath).readAsBytesSync();
     final imageFile =
         MultipartFile.fromBytes(imageBytes, filename: 'image.jpg');
