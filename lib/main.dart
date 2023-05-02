@@ -4,10 +4,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,13 +17,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Image Uploader'),
+      home: const MyHomePage(title: 'Image Uploader'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -38,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (pickedFile != null) {
       final compressedImage = await FlutterImageCompress.compressAndGetFile(
         pickedFile.path,
-        pickedFile.path + '_compressed.jpg',
+        '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
       setState(() {
@@ -53,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (pickedFile != null) {
       final compressedImage = await FlutterImageCompress.compressAndGetFile(
         pickedFile.path,
-        pickedFile.path + '_compressed.jpg',
+        '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
       setState(() {
@@ -69,8 +71,9 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child:
-            _image == null ? Text('No image selected.') : Image.file(_image!),
+        child: _image == null
+            ? const Text('No image selected.')
+            : Image.file(_image!),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -78,13 +81,13 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             onPressed: _getImageFromCamera,
             tooltip: 'Take a picture',
-            child: Icon(Icons.camera_alt),
+            child: const Icon(Icons.camera_alt),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           FloatingActionButton(
             onPressed: _getImageFromGallery,
             tooltip: 'Pick from gallery',
-            child: Icon(Icons.photo_library),
+            child: const Icon(Icons.photo_library),
           ),
         ],
       ),
