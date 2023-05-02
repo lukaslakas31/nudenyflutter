@@ -35,8 +35,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   File? _image;
-  final dio = Dio();
-  String imageClass = '';
+  final dio = Dio(); ///added dio 
+  String imageClass = ''; /// added string 
 
   Future<void> _getImageFromCamera() async {
     final imagePicker = ImagePicker();
@@ -47,16 +47,18 @@ class _MyHomePageState extends State<MyHomePage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
+      /// send form data 
       final formData = FormData.fromMap({
         'files': await MultipartFile.fromFile(compressedImage!.path,
             filename: "${pickedFile.path}_compressed.jpg"),
       });
+      /// response form data
       final response = await dio.post(
           'http://ec2-18-136-200-224.ap-southeast-1.compute.amazonaws.com/classify/',
           data: formData);
-      print(response.data);
+      print(response.data); //print 
       setState(() {
-        imageClass = response.data['Prediction'][0]['class'];
+        imageClass = response.data['Prediction'][0]['class']; //print 
         _image = compressedImage;
       });
     }
