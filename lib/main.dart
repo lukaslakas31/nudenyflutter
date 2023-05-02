@@ -35,8 +35,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   File? _image;
-  final dio = Dio(); ///added dio 
-  String imageClass = ''; /// added string 
+  final dio = Dio();
+
+  ///added dio
+  String imageClass = '';
+
+  /// added string
 
   Future<void> _getImageFromCamera() async {
     final imagePicker = ImagePicker();
@@ -47,18 +51,20 @@ class _MyHomePageState extends State<MyHomePage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
-      /// send form data 
+
+      /// send form data
       final formData = FormData.fromMap({
         'files': await MultipartFile.fromFile(compressedImage!.path,
             filename: "${pickedFile.path}_compressed.jpg"),
       });
+
       /// response form data
       final response = await dio.post(
           'http://ec2-18-136-200-224.ap-southeast-1.compute.amazonaws.com/classify/',
           data: formData);
-      print(response.data); //print 
+      print(response.data); //print
       setState(() {
-        imageClass = response.data['Prediction'][0]['class']; //print 
+        imageClass = response.data['Prediction'][0]['class']; //print
         _image = compressedImage;
       });
     }
@@ -95,26 +101,27 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-          child: SingleChildScrollView(
-        child: Column(
-          children: [
-            _image == null
-                ? const Text('No image selected.')
-                : Column(
-                    children: [
-                      Image.file(_image!),
-                      const SizedBox(height: 20),
-                      Text(
-                        'This image is $imageClass',
-                        style: const TextStyle(
-                          fontSize: 30,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _image == null
+                  ? const Text('No image selected.')
+                  : Column(
+                      children: [
+                        Image.file(_image!),
+                        const SizedBox(height: 20),
+                        Text(
+                          'This image is $imageClass',
+                          style: const TextStyle(
+                            fontSize: 30,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-          ],
+                      ],
+                    ),
+            ],
+          ),
         ),
-      ),),
+      ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
