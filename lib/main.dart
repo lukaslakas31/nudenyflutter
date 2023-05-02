@@ -1,7 +1,9 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:dio/dio.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,6 +35,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   File? _image;
+  final dio = Dio();
+  String imageClass = '';
 
   Future<void> _getImageFromCamera() async {
     final imagePicker = ImagePicker();
@@ -43,7 +47,16 @@ class _MyHomePageState extends State<MyHomePage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
+      final formData = FormData.fromMap({
+        'files': await MultipartFile.fromFile(compressedImage!.path,
+            filename: "${pickedFile.path}_compressed.jpg"),
+      });
+      final response = await dio.post(
+          'http://ec2-18-136-200-224.ap-southeast-1.compute.amazonaws.com/classify/',
+          data: formData);
+      print(response.data);
       setState(() {
+        imageClass = response.data['Prediction'][0]['class'];
         _image = compressedImage;
       });
     }
@@ -58,7 +71,16 @@ class _MyHomePageState extends State<MyHomePage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
+      final formData = FormData.fromMap({
+        'files': await MultipartFile.fromFile(compressedImage!.path,
+            filename: "${pickedFile.path}_compressed.jpg"),
+      });
+      final response = await dio.post(
+          'http://ec2-18-136-200-224.ap-southeast-1.compute.amazonaws.com/classify/',
+          data: formData);
+      print(response.data);
       setState(() {
+        imageClass = response.data['Prediction'][0]['class'];
         _image = compressedImage;
       });
     }
@@ -71,10 +93,26 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: _image == null
-            ? const Text('No image selected.')
-            : Image.file(_image!),
-      ),
+          child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _image == null
+                ? const Text('No image selected.')
+                : Column(
+                    children: [
+                      Image.file(_image!),
+                      const SizedBox(height: 20),
+                      Text(
+                        'This image is $imageClass',
+                        style: const TextStyle(
+                          fontSize: 30,
+                        ),
+                      ),
+                    ],
+                  ),
+          ],
+        ),
+      )),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
