@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:dio/dio.dart';
+import 'package:nudeny/nudeny.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,6 +36,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   File? _image;
   final dio = Dio();
+  final nudeny = Nudeny();
 
   ///added dio
   String imageClass = '';
@@ -50,20 +52,21 @@ class _MyHomePageState extends State<MyHomePage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
+      final response = await nudeny.classify([pickedFile.path]);
 
       /// send form data
-      final formData = FormData.fromMap({
-        'files': await MultipartFile.fromFile(compressedImage!.path,
-            filename: "${pickedFile.path}_compressed.jpg"),
-      });
+      // final formData = FormData.fromMap({
+      //   'files': await MultipartFile.fromFile(compressedImage!.path,
+      //       filename: "${pickedFile.path}_compressed.jpg"),
+      // });
 
-      /// response form data
-      final response = await dio.post(
-          'http://ec2-18-136-200-224.ap-southeast-1.compute.amazonaws.com/classify/',
-          data: formData);
-      print(response.data); //print
+      // /// response form data
+      // final response = await dio.post(
+      //     'http://ec2-18-136-200-224.ap-southeast-1.compute.amazonaws.com/classify/',
+      //     data: formData);
+      // print(response.data); //print
       setState(() {
-        imageClass = response.data['Prediction'][0]['class']; //print
+        imageClass = response['Prediction'][0]['class']; //print
         _image = compressedImage;
       });
     }
@@ -78,16 +81,9 @@ class _MyHomePageState extends State<MyHomePage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
-      final formData = FormData.fromMap({
-        'files': await MultipartFile.fromFile(compressedImage!.path,
-            filename: "${pickedFile.path}_compressed.jpg"),
-      });
-      final response = await dio.post(
-          'http://ec2-18-136-200-224.ap-southeast-1.compute.amazonaws.com/classify/',
-          data: formData);
-      print(response.data);
+      final response = await nudeny.classify([pickedFile.path]);
       setState(() {
-        imageClass = response.data['Prediction'][0]['class'];
+        imageClass = response['Prediction'][0]['class'];
         _image = compressedImage;
       });
     }
