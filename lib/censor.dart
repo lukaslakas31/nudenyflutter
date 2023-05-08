@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:dio/dio.dart';
-import 'package:nudeny/nudeny.dart'; //2
 
 class CensorPage extends StatefulWidget {
   const CensorPage({super.key});
@@ -15,7 +14,6 @@ class CensorPage extends StatefulWidget {
 
 class _CensorPageState extends State<CensorPage> {
   File? _image;
-  final nudeny = Nudeny(); //1 
   String imageUrl = '';
 
   Future<void> _getImageFromCamera() async {
@@ -27,11 +25,11 @@ class _CensorPageState extends State<CensorPage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
-      // nudeny api 
       try {
-        final response = await nudeny.censor([pickedFile.path]); // 2
+
+        //implement nudeny here
+
         setState(() {
-          imageUrl = response['Prediction'][0]['url']; //wala pa to
           _image = compressedImage;
         });
       } catch (e) {
@@ -49,9 +47,10 @@ class _CensorPageState extends State<CensorPage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
-      final response = await nudeny.censor([pickedFile.path]); //nudeny 
+
+     // implement nudeny here 
       setState(() {
-        imageUrl = response['Prediction'][0]['url'] ?? ''; // wala pa to
+
         _image = compressedImage;
       });
     }
