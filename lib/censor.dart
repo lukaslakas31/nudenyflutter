@@ -4,51 +4,19 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:dio/dio.dart';
-import 'package:nudeny/nudeny.dart';
-import 'package:nudenyflutter/censor.dart';
+import 'package:nudeny/nudeny.dart'; //2
 
-void main() {
-  runApp(const MyApp(),
-  );
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key});
+class CensorPage extends StatefulWidget {
+  const CensorPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'Image Uploader',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const MyHomePage(title: 'Classify Page'),
-        '/censor': (context) => const CensorPage(),
-      },
-    );
-  }
+  State<CensorPage> createState() => _CensorPageState();
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _CensorPageState extends State<CensorPage> {
   File? _image;
-  final dio = Dio();
-  final nudeny = Nudeny();
-
-  ///added dio
-  String imageClass = '';
-
-  /// added string
+  final nudeny = Nudeny(); //1 
+  String imageUrl = '';
 
   Future<void> _getImageFromCamera() async {
     final imagePicker = ImagePicker();
@@ -59,23 +27,16 @@ class _MyHomePageState extends State<MyHomePage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
-      final response = await nudeny.classify([pickedFile.path]);
-
-      /// send form data
-      // final formData = FormData.fromMap({
-      //   'files': await MultipartFile.fromFile(compressedImage!.path,
-      //       filename: "${pickedFile.path}_compressed.jpg"),
-      // });
-
-      // /// response form data
-      // final response = await dio.post(
-      //     'http://ec2-18-136-200-224.ap-southeast-1.compute.amazonaws.com/classify/',
-      //     data: formData);
-      // print(response.data); //print
-      setState(() {
-        imageClass = response['Prediction'][0]['class']; //print
-        _image = compressedImage;
-      });
+      // nudeny api 
+      try {
+        final response = await nudeny.censor([pickedFile.path]); // 2
+        setState(() {
+          imageUrl = response['Prediction'][0]['url']; //wala pa to
+          _image = compressedImage;
+        });
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
@@ -88,9 +49,9 @@ class _MyHomePageState extends State<MyHomePage> {
         '${pickedFile.path}_compressed.jpg',
         quality: 50,
       );
-      final response = await nudeny.classify([pickedFile.path]);
+      final response = await nudeny.censor([pickedFile.path]); //nudeny 
       setState(() {
-        imageClass = response['Prediction'][0]['class'];
+        imageUrl = response['Prediction'][0]['url'] ?? ''; // wala pa to
         _image = compressedImage;
       });
     }
@@ -100,7 +61,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Censor Page'),
+        backgroundColor: const Color.fromARGB(255, 60, 244, 54),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -108,16 +70,19 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               _image == null
                   ? const Text('No image selected.')
-                  : Column(
+                  : Stack(
                       children: [
-                        Image.file(_image!),
-                        const SizedBox(height: 20),
-                        Text(
-                          'This image is $imageClass',
-                          style: const TextStyle(
-                            fontSize: 30,
-                          ),
-                        ),
+                        if (imageUrl == '')
+                          Image.file(_image!)
+                        else
+                          Image.network(imageUrl, loadingBuilder:
+                              (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return const CircularProgressIndicator();
+                            }
+                          }),
                       ],
                     ),
             ],
@@ -157,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Get.toNamed('/');
               break;
             case 1:
-              Get.toNamed('/censor');
+              Get.toNamed('/censorPage');
               break;
           }
         },
